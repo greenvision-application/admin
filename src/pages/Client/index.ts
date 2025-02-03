@@ -1,3 +1,3 @@
-import { User } from "./ui";
+import { User } from './ui';
 
 export { User };

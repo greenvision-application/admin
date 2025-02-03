@@ -1,7 +1,7 @@
-import { Route, Routes } from "react-router-dom";
-import "./App.css";
-import Layout from "./Layout";
-import { NotFound, Dashboard, Plant, User } from "../pages";
+import { Route, Routes } from 'react-router-dom';
+import './App.css';
+import Layout from './Layout';
+import { NotFound, Dashboard, Plant, User } from '../pages';
 
 function App() {
   return (

@@ -1,3 +1,3 @@
-import Plant from "./Plant";
+import Plant from './Plant';
 
 export { Plant };

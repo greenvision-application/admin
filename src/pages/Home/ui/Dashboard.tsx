@@ -1,9 +1,9 @@
-import React from "react";
+import React from 'react';
 
 const Dashboard = () => {
   return (
     <div>
-      <h1 className="text-green-700 text-8xl font-bold">
+      <h1 className="text-8xl font-bold text-green-700">
         Hi, Mom! -- Dashboard
       </h1>
     </div>
