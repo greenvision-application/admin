@@ -3,8 +3,8 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-  --color-primary: #62A72B;
+  --color-primary: #62a72b;
   --color-light-100: #cecefb;
   --color-light-200: #a8b5db;
-  --color-dark-100: #3D3D41;
+  --color-dark-100: #3d3d41;
 }

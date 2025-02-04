@@ -6,8 +6,8 @@ const Header = () => {
   const [isDarkMode, setIsDarkMode] = useState(false);
 
   return (
-    <header className="border-b border-gray-300">
-      <div className="flex items-center justify-between px-4 py-2">
+    <header className="fixed top-0 right-0 left-24 border-b border-gray-300 bg-white">
+      <div className="flex h-20 items-center justify-between px-4 py-2">
         {/* Tittle Section */}
         <div>
           <h1 className="text-xl font-bold">GreenVision Dashboard</h1>
@@ -58,7 +58,8 @@ const Header = () => {
             </div>
             <div className="h-14 w-14 overflow-hidden rounded-full border-2 border-green-500 shadow-lg transition-transform duration-300 hover:scale-105">
               <img
-                src={'https://avatar.iran.liara.run/public/45'}
+                // src={'https://avatar.iran.liara.run/public/45'}
+                src="https://api.dicebear.com/8.x/lorelei-neutral/svg?seed=John"
                 alt="User avatar"
                 className="h-full w-full object-cover transition-opacity duration-300 hover:opacity-90"
               />

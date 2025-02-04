@@ -7,23 +7,35 @@ import {
   LogOut,
   Settings
 } from 'lucide-react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import Logo from './Logo';
 import { cn } from '../../../utils';
 
 const Sidebar = () => {
-  const [active, setActive] = useState<string>('shop');
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [active, setActive] = useState<string>(
+    location.pathname.slice(1) || 'dashboard'
+  );
 
   const menuItems = [
-    { id: 'dashboard', icon: LayoutGrid, label: 'Dashboard' },
-    { id: 'plant', icon: Sprout, label: 'Plants' },
-    { id: 'user', icon: Users, label: 'Users' },
+    { id: '', icon: LayoutGrid, label: 'Dashboard' },
+    { id: 'plants', icon: Sprout, label: 'Plants' },
+    { id: 'users', icon: Users, label: 'Users' },
     { id: 'scan', icon: ScanLine, label: 'Scan Plant' },
-    { id: 'setting', icon: Settings, label: 'Settings' }
+    { id: 'settings', icon: Settings, label: 'Settings' }
   ];
 
   return (
-    <div className="flex h-screen w-24 flex-col items-center justify-between bg-black py-4">
-      <Logo />
+    <div className="fixed flex h-screen w-24 flex-col items-center justify-between bg-black py-4">
+      <button
+        onClick={() => {
+          setActive('');
+          navigate('/');
+        }}
+      >
+        <Logo />
+      </button>
       <div className="flex w-full flex-col items-center gap-4">
         {menuItems.map(item => (
           <div key={item.id} className="group relative">
@@ -36,7 +48,10 @@ const Sidebar = () => {
                 'hover:bg-green-500/20',
                 active === item.id ? 'bg-green-500/10' : ''
               )}
-              onClick={() => setActive(item.id)}
+              onClick={() => {
+                setActive(item.id);
+                navigate(`/${item.id}`);
+              }}
             >
               <item.icon
                 className={cn(

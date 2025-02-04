@@ -1,11 +1,11 @@
-import React from 'react';
+import HoverDevCards from './HoverCard';
+import TopPlantedPlants from './TopPlantedPlants';
 
 const Dashboard = () => {
   return (
-    <div>
-      <h1 className="text-8xl font-bold text-green-700">
-        Hi, Mom! -- Dashboard
-      </h1>
+    <div className="space-y-3 p-4">
+      <HoverDevCards />
+      <TopPlantedPlants />
     </div>
   );
 };
