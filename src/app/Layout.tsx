@@ -1,16 +1,16 @@
 import React from 'react';
 import { Outlet } from 'react-router-dom';
-import { Header, Footer, Sidebar } from '../widgets';
+import { Header, Sidebar } from '../widgets';
 
 const Layout = () => {
   return (
-    <div className="h-screen overflow-x-hidden">
-      <Header />
-      <main>
-        <Sidebar />
+    <div className="flex min-h-screen">
+      <Sidebar />
+      <main className="flex-1">
+        <Header />
         <Outlet />
       </main>
-      <Footer />
+      {/* <Footer /> */}
     </div>
   );
 };
