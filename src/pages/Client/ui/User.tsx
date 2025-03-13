@@ -2,10 +2,9 @@ import { useState, useEffect } from 'react';
 import { Table } from '../../../components';
 import type { ActionColumn } from '../../../components';
 import provinces from '../../../data/provinces.json';
-import { API_URL } from '../../../config';
 import {getUsers, updateUser, createUser } from '../../../services/userService';
 import {getRoles} from '../../../services/roleService';
-import { Role, Users } from '../../../types/Model';
+import { Role } from '../../../types/Model';
 
 // Định nghĩa interface dựa trên dữ liệu API thực tế
 interface UserTable {
@@ -397,8 +396,7 @@ const UserList: React.FC = () => {
           actionColumn={actionColumn}
         />
       )}
-    </>
-  );
+    </> );
 };
 
 export default UserList;
