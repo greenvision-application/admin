@@ -2,8 +2,12 @@ import { useState, useEffect } from 'react';
 import { Table } from '../../../components';
 import type { ActionColumn } from '../../../components';
 import provinces from '../../../data/provinces.json';
-import {getUsers, updateUser, createUser } from '../../../services/userService';
-import {getRoles} from '../../../services/roleService';
+import {
+  getUsers,
+  updateUser,
+  createUser
+} from '../../../services/userService';
+import { getRoles } from '../../../services/roleService';
 import { Role } from '../../../types/Model';
 
 // Định nghĩa interface dựa trên dữ liệu API thực tế
@@ -34,7 +38,7 @@ interface UserColumn {
 
 const UserList: React.FC = () => {
   //update user
-  const [editUser, setEditUser] = useState<any>(null);
+  // const [editUser, setEditUser] = useState<any>(null);
   //roles
   const [roles, setRoles] = useState<Role[]>([]);
   //tỉnh thành
@@ -53,29 +57,27 @@ const UserList: React.FC = () => {
     province: ''
   });
   const [loading, setLoading] = useState(true);
-    // Lấy danh sách roles từ API
-    useEffect(() => {
-      const fetchRoles = async () => {
-        try {
-          const rolesData = await getRoles();
-          console.log("api roles",rolesData);
-          setRoles(rolesData);
-        } catch (error) {
-          console.error("Lỗi khi lấy danh sách roles:", error);
-        }
-      };
-  
-      fetchRoles();
-    }, []);
+  // Lấy danh sách roles từ API
+  useEffect(() => {
+    const fetchRoles = async () => {
+      try {
+        const rolesData = await getRoles();
+        console.log('api roles', rolesData);
+        setRoles(rolesData);
+      } catch (error) {
+        console.error('Lỗi khi lấy danh sách roles:', error);
+      }
+    };
 
+    fetchRoles();
+  }, []);
 
-
-// lấy danh sách user
+  // lấy danh sách user
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const data = await getUsers();        
-        console.log("data user", data);
+        const data = await getUsers();
+        console.log('data user', data);
         setUserData(data);
         setLoading(false);
       } catch (error) {
@@ -99,54 +101,49 @@ const UserList: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const selectedProvince = provinces.find(p => p?.code === Number(newUser.province));
-    const selectedDistrict = districts.find(d => d?.code === Number(newUser.district));
+    const selectedProvince = provinces.find(
+      p => p?.code === Number(newUser.province)
+    );
+    const selectedDistrict = districts.find(
+      d => d?.code === Number(newUser.district)
+    );
     const selectedWard = wards.find(w => w?.code === Number(newUser.ward));
-  
-    const userDataToSend = {
+
+    const newUserData = {
       username: newUser.username,
       email: newUser.email,
-      role_id: newUser.role_id,
+      role_id: newUser.role_id, // UUID từ dropdown
       address: {
-        province: selectedProvince ? selectedProvince.name : "",
-        district: selectedDistrict ? selectedDistrict.name : "",
-        ward: selectedWard ? selectedWard.name : ""
+        province: selectedProvince ? selectedProvince.name : '',
+        district: selectedDistrict ? selectedDistrict.name : '',
+        ward: selectedWard ? selectedWard.name : ''
       },
+      is_active: true
     };
-  
+
     try {
-      if (editUser) {
-        // 🔥 Nếu đang chỉnh sửa, gọi API updateUser với userId
-        console.log("Cập nhật user:", editUser, userDataToSend);
-        const updatedUser = await updateUser(editUser, userDataToSend);
-  
-        // Cập nhật dữ liệu trong bảng
-        setUserData(prev =>
-          prev.map(user => (user.id === updatedUser.id ? updatedUser : user))
-        );
-      } else {
-        // 🔥 Nếu đang thêm mới, gọi API createUser
-        console.log("Tạo user mới:", userDataToSend);
-        const response = await createUser(userDataToSend);
-        const createdUser = await response.json();
-        setUserData(prev => [...prev, createdUser]);
-      }
-  
+      const response = await createUser(newUserData);
+      const createdUser = await response.json();
+      setUserData(prev => [
+        ...prev,
+        {
+          ...createdUser,
+          Role: roles.find(r => r.id === createdUser.role_id) || null
+        }
+      ]);
       setShowForm(false);
-      setEditUser(null); // Reset editUser sau khi cập nhật
       setNewUser({
-        username: "",
-        email: "",
-        role_id: "",
-        ward: "",
-        district: "",
-        province: "",
+        username: '',
+        email: '',
+        role_id: '',
+        ward: '',
+        district: '',
+        province: ''
       });
     } catch (error) {
-      console.error("Lỗi khi lưu user:", error);
+      console.error('Lỗi khi lưu user:', error);
     }
   };
-  
 
   const userColumns: UserColumn[] = [
     {
@@ -169,9 +166,9 @@ const UserList: React.FC = () => {
     {
       key: 'Role',
       title: 'Vai trò',
-      render: (user) => (
-        <span>{user.Role ? user.Role.role_name : "Chưa có vai trò"}</span>
-      ),
+      render: user => (
+        <span>{user.Role ? user.Role.role_name : 'Chưa có vai trò'}</span>
+      )
     },
     {
       key: 'is_active',
@@ -205,35 +202,25 @@ const UserList: React.FC = () => {
       }
     ]
   };
-
+  
   const handleEditUser = (user: UserTable) => {
-    setEditUser(user.id); // 🔥 Lưu userId để biết đang chỉnh sửa
-    setShowForm(true); // Hiển thị form
-  
-    setNewUser({
-      username: user.username || "",
-      email: user.email || "",
-      role_id: user.role_id || "",
-      ward: user.address?.ward || "",
-      district: user.address?.district || "",
-      province: user.address?.province || "",
-    });
+    // setSelectedUser(user);
+    // setShowEditForm(true);
   };
-  
+
   const handleProvinceChange = (e) => {
     const provinceCode = Number(e.target.value); // Chuyển sang số
     setNewUser({ ...newUser, province: provinceCode, district: '', ward: '' });
-  
+
     const selectedProvince = provinces.find(p => p.code === provinceCode);
     setDistricts(selectedProvince ? selectedProvince.districts : []);
     setWards([]);
   };
-  
 
   const handleDistrictChange = (e) => {
     const districtCode = Number(e.target.value); // Chuyển sang số
     setNewUser({ ...newUser, district: districtCode, ward: '' });
-  
+
     const selectedDistrict = districts.find(d => d.code === districtCode);
     setWards(selectedDistrict ? selectedDistrict.wards : []);
   };
@@ -254,10 +241,7 @@ const UserList: React.FC = () => {
           onSubmit={handleSubmit}
           className="mb-6 rounded-lg bg-white p-6 shadow-md"
         >
-          <h2 className="mb-4 text-xl font-bold">
-            {editUser ? "Cập nhật người dùng" : "Thêm người dùng"}
-
-          </h2>
+          <h2 className="mb-4 text-xl font-bold">Thêm người dùng</h2>
           <div>
             <div className="mb-3">
               <label className="mb-1 block text-sm font-medium">
@@ -353,16 +337,15 @@ const UserList: React.FC = () => {
               </label>
               <select
                 value={newUser.role_id}
-                onChange={(e) =>{
-                  console.log("Role UUID được chọn:", e.target.value);
-                  setNewUser({ ...newUser, role_id: e.target.value })
-
+                onChange={e => {
+                  console.log('Role UUID được chọn:', e.target.value);
+                  setNewUser({ ...newUser, role_id: e.target.value });
                 }}
                 className="w-full rounded border p-2"
                 required
               >
                 <option value="">Chọn vai trò</option>
-                {roles.map((role) => (
+                {roles.map(role => (
                   <option key={role.id} value={role.id}>
                     {role.role_name}
                   </option>
@@ -396,7 +379,8 @@ const UserList: React.FC = () => {
           actionColumn={actionColumn}
         />
       )}
-    </> );
+    </>
+  );
 };
 
 export default UserList;
