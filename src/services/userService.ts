@@ -38,12 +38,19 @@ export const createUser = async (userData) => {
       body: JSON.stringify(userData),
     });
 
-    return response; // Trả về response thay vì response.json() để xử lý lỗi phía ngoài
+    const result = await response.json();
+
+    if (!response.ok) {
+      throw new Error(result.message || 'Có lỗi xảy ra khi tạo user');
+    }
+
+    return result;
   } catch (error) {
-    console.error('Lỗi API createUser:', error);
-    throw error;
+    console.error('Lỗi API createUser:', error.message);
+    throw new Error(error.message);
   }
 };
+
 
 
 // Cập nhật user theo ID
