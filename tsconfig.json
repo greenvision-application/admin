@@ -5,6 +5,8 @@
     { "path": "./tsconfig.node.json" }
   ],
   "compilerOptions": {
+    "resolveJsonModule": true, //Cho phép import file JSON như module.
+    "esModuleInterop": true, //Đảm bảo import JSON tương thích ES6.
     /* Path */
     "baseUrl": "./",
     "paths": {
