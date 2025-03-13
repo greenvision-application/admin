@@ -123,6 +123,7 @@ const UserList: React.FC = () => {
 
     try {
       const response = await createUser(newUserData);
+      
       const createdUser = await response.json();
       setUserData(prev => [
         ...prev,
@@ -142,6 +143,7 @@ const UserList: React.FC = () => {
       });
     } catch (error) {
       console.error('Lỗi khi lưu user:', error);
+      alert(error.message);
     }
   };
 
