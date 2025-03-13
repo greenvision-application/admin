@@ -124,7 +124,7 @@ const UserList: React.FC = () => {
     try {
       const response = await createUser(newUserData);
       
-      const createdUser = await response.json();
+      const createdUser = await response;
       setUserData(prev => [
         ...prev,
         {
