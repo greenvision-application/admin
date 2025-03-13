@@ -45,7 +45,7 @@ export const createUser = async (userData) => {
     }
 
     return result;
-  } catch (error) {
+  } catch (error: any) {
     console.error('Lỗi API createUser:', error.message);
     throw new Error(error.message);
   }
@@ -64,10 +64,22 @@ export const updateUser = async (userId: string, userData: Partial<Users>): Prom
 
     return response.data;
   } catch (error: any) {
-    console.error("Lỗi khi cập nhật user:", error.response?.data || error.message);
-    throw new Error(error.response?.data?.message || "Có lỗi xảy ra khi cập nhật user");
+    if (error.response) {
+      // Lỗi từ phía server (HTTP response)
+      console.error("Lỗi từ server khi cập nhật user:", error.response.data);
+      throw new Error(error.response.data?.message || "Lỗi từ server khi cập nhật user");
+    } else if (error.request) {
+      // Lỗi khi không nhận được phản hồi từ server
+      console.error("Không nhận được phản hồi từ server:", error.request);
+      throw new Error("Không thể kết nối đến server, vui lòng thử lại sau");
+    } else {
+      // Các lỗi khác (cấu hình sai, lỗi không xác định)
+      console.error("Lỗi khi cập nhật user:", error.message);
+      throw new Error(error.message || "Có lỗi xảy ra khi cập nhật user");
+    }
   }
 };
+
 
 
 // Xóa user theo ID
