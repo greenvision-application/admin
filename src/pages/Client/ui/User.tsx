@@ -260,6 +260,18 @@ const UserList: React.FC = () => {
     // Cập nhật danh sách huyện & xã
     setDistricts(selectedProvince ? selectedProvince.districts : []);
     setWards(selectedWards);
+    
+    setTimeout(() => {
+      setNewUser({
+        id: user.id,
+        username: user.username || '',
+        email: user.email,
+        role_id: user.role_id,
+        province: selectedProvince ? selectedProvince.code.toString() : '',
+        district: selectedDistrict ? selectedDistrict.code.toString() : '',
+        ward: selectedWards.find(w => w.name === user.address?.ward)?.code.toString() || ''
+      });
+    }, 0);
 
     setShowForm(true); // Hiển thị form chỉnh sửa
   };
@@ -400,7 +412,6 @@ const UserList: React.FC = () => {
                 Quận/Huyện <span className="text-red-500">*</span>
               </label>
               <select
-              id="select-district"
                 value={newUser.district}
                 onChange={handleDistrictChange}
                 className="w-full rounded border p-2"
