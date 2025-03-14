@@ -37,6 +37,8 @@ interface UserColumn {
 }
 
 const UserList: React.FC = () => {
+  //update
+  const [edit, setEdit] = useState(false);
   //roles
   const [roles, setRoles] = useState<Role[]>([]);
   //tỉnh thành
@@ -100,11 +102,15 @@ const UserList: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    const selectedProvince = provinces.find(p => p.code === Number(newUser.province));
-    const selectedDistrict = districts.find(d => d.code === Number(newUser.district));
+
+    const selectedProvince = provinces.find(
+      p => p.code === Number(newUser.province)
+    );
+    const selectedDistrict = districts.find(
+      d => d.code === Number(newUser.district)
+    );
     const selectedWard = wards.find(w => w.code === Number(newUser.ward));
-  
+
     const userPayload = {
       username: newUser.username,
       email: newUser.email,
@@ -114,50 +120,58 @@ const UserList: React.FC = () => {
         district: selectedDistrict ? selectedDistrict.name : '',
         ward: selectedWard ? selectedWard.name : ''
       },
-      is_active: true
+      is_active: true,
+      password: newUser.password
     };
     // Chỉ thêm password khi tạo user mới
-    if (!newUser.id) {
+    if (!edit) {
       userPayload.password = newUser.password;
     }
-  
+
     try {
-      if (newUser.id) {
+      if (edit) {
         // 🟢 Chỉnh sửa user
         await updateUser(newUser.id, userPayload);
 
         // Lấy thông tin role mới
         const updatedRole = roles.find(r => r.id === newUser.role_id);
-  
+
         // Cập nhật lại danh sách user sau khi chỉnh sửa
         // Cập nhật lại danh sách user với role mới
-      setUserData(prev =>
-        prev.map(user =>
-          user.id === newUser.id
-            ? { ...user, ...userPayload, Role: updatedRole ? { ...updatedRole } : user.Role }
-            : user
-        )
-      );
+        setUserData(prev =>
+          prev.map(user =>
+            user.id === newUser.id
+              ? {
+                  ...user,
+                  ...userPayload,
+                  Role: updatedRole ? { ...updatedRole } : user.Role
+                }
+              : user
+          )
+        );
+      } else {
+        // 🆕 Tạo user mới (Gọi API createUser)
+        console.log('User Payload trước khi gửi API:', userPayload); // 🛠 Kiểm tra dữ liệu
+        const response = await createUser(userPayload);
+        console.log('API createUser trả về:', response); // 🛠 Kiểm tra phản hồi API
+
+        // Thêm user mới vào danh sách user
+        setUserData(prev => [
+          ...prev,
+          {
+            ...response,
+            Role: roles.find(r => r.id === response.role_id) || null
+          }
+        ]);
       }
-  
+
       setShowForm(false);
-      setNewUser({
-        id: '',
-        username: '',
-        email: '',
-        role_id: '',
-        password: '',
-        ward: '',
-        district: '',
-        province: ''
-      });
+      resetUserForm();
     } catch (error) {
       console.error('Lỗi khi cập nhật user:', error);
       alert(error.message);
     }
   };
-  
-  
 
   const userColumns: UserColumn[] = [
     {
@@ -216,62 +230,89 @@ const UserList: React.FC = () => {
       }
     ]
   };
-  
+
   const handleEditUser = (user: UserTable) => {
+    setEdit(true);
     // Tìm tỉnh của user trong provinces.json
-    const selectedProvince = provinces.find(p => p.name === user.address?.province);
-  
+    const selectedProvince = provinces.find(
+      p => p.name === user.address?.province
+    );
+
     // Tìm huyện của user từ tỉnh đã chọn
-    const selectedDistrict = selectedProvince?.districts.find(d => d.name === user.address?.district);
-  
+    const selectedDistrict = selectedProvince?.districts.find(
+      d => d.name === user.address?.district
+    );
+
     // Tìm danh sách xã từ huyện đã chọn
     const selectedWards = selectedDistrict ? selectedDistrict.wards : [];
-  
+
     // Đặt dữ liệu user vào state
     setNewUser({
       id: user.id,
       username: user.username || '',
       email: user.email,
-      role_id: user.role_id,      
+      role_id: user.role_id,
       province: selectedProvince ? selectedProvince.code.toString() : '',
       district: selectedDistrict ? selectedDistrict.code.toString() : '',
       ward: user.address?.ward || ''
     });
-  
+
     // Cập nhật danh sách huyện & xã
     setDistricts(selectedProvince ? selectedProvince.districts : []);
     setWards(selectedWards);
-  
+
     setShowForm(true); // Hiển thị form chỉnh sửa
   };
-  
-  
 
-  const handleProvinceChange = (e) => {
+  const handleProvinceChange = e => {
     const provinceCode = Number(e.target.value);
     const selectedProvince = provinces.find(p => p.code === provinceCode);
-  
-    setNewUser({ ...newUser, province: provinceCode.toString(), district: '', ward: '' });
+
+    setNewUser({
+      ...newUser,
+      province: provinceCode.toString(),
+      district: '',
+      ward: ''
+    });
     setDistricts(selectedProvince ? selectedProvince.districts : []);
     setWards([]);
   };
-  
-  const handleDistrictChange = (e) => {
+
+  const handleDistrictChange = e => {
     const districtCode = Number(e.target.value);
     const selectedDistrict = districts.find(d => d.code === districtCode);
-  
+
     setNewUser({ ...newUser, district: districtCode.toString(), ward: '' });
     setWards(selectedDistrict ? selectedDistrict.wards : []);
   };
-  
-  
+  const resetUserForm = () => {
+    if (edit) {
+      // Chỉ reset nếu đang chỉnh sửa
+      setNewUser({
+        id: '',
+        username: '',
+        email: '',
+        role_id: '',
+        password: '',
+        ward: '',
+        district: '',
+        province: ''
+      });
+      setDistricts([]);
+      setWards([]);
+      setEdit(false);
+    }
+  };
 
   return (
     <>
       <div className="flex justify-end pt-5 pr-2 pb-0.5">
         <button
-          onClick={() => setShowForm(!showForm)}
-          className={`rounded  px-4 py-2 text-white  ${!showForm? "bg-green-500 hover:bg-green-900": "bg-red-500 hover:bg-red-400"}`}
+          onClick={() => {
+            setShowForm(!showForm);
+            if (!showForm) resetUserForm();
+          }}
+          className={`rounded px-4 py-2 text-white ${!showForm ? 'bg-green-500 hover:bg-green-900' : 'bg-red-500 hover:bg-red-400'}`}
         >
           {showForm ? 'X' : 'Thêm người dùng'}
         </button>
@@ -282,13 +323,16 @@ const UserList: React.FC = () => {
           onSubmit={handleSubmit}
           className="mb-6 rounded-lg bg-white p-6 shadow-md"
         >
-          <h2 className="mb-4 text-xl font-bold">{newUser.id ? 'Chỉnh sửa người dùng' : 'Thêm người dùng'}</h2>
+          <h2 className="mb-4 text-xl font-bold">
+            {edit ? 'Chỉnh sửa người dùng' : 'Thêm người dùng'}
+          </h2>
           <div>
             <div className="mb-3">
               <label className="mb-1 block text-sm font-medium">
                 Tên người dùng <span className="text-red-500">*</span>
               </label>
               <input
+              id="input-username"
                 type="text"
                 value={newUser.username}
                 onChange={e =>
@@ -303,6 +347,7 @@ const UserList: React.FC = () => {
                 Email <span className="text-red-500">*</span>
               </label>
               <input
+              id="input-email"
                 type="email"
                 value={newUser.email}
                 onChange={e =>
@@ -312,25 +357,30 @@ const UserList: React.FC = () => {
                 required
               />
             </div>
-            {!newUser.id && (
-  <div className="mb-3">
-    <label className="mb-1 block text-sm font-medium">
-      Mật khẩu <span className="text-red-500">*</span>
-    </label>
-    <input
-      type="password"
-      value={newUser.password}
-      onChange={e => setNewUser({ ...newUser, password: e.target.value })}
-      className="w-full rounded border p-2"
-      required
-    />
-  </div>
-)}
+            {!edit && (
+              <div className="mb-3">
+                <label className="mb-1 block text-sm font-medium">
+                  Mật khẩu <span className="text-red-500">*</span>
+                </label>
+                <input
+                id="input-password"
+                  type="password"
+                  value={newUser.password}
+                  onChange={e =>
+                    setNewUser({ ...newUser, password: e.target.value })
+                  }
+                  className="w-full rounded border p-2"
+                  minLength={8}
+                  required
+                />
+              </div>
+            )}
             <div className="mb-3">
               <label className="mb-1 block text-sm font-medium">
                 Tỉnh/Thành phố <span className="text-red-500">*</span>
               </label>
               <select
+              id="select-province"
                 value={newUser.province}
                 onChange={handleProvinceChange}
                 className="w-full rounded border p-2"
@@ -350,6 +400,7 @@ const UserList: React.FC = () => {
                 Quận/Huyện <span className="text-red-500">*</span>
               </label>
               <select
+              id="select-district"
                 value={newUser.district}
                 onChange={handleDistrictChange}
                 className="w-full rounded border p-2"
@@ -370,6 +421,7 @@ const UserList: React.FC = () => {
                 Phường/Xã <span className="text-red-500">*</span>
               </label>
               <select
+               id="select-ward"
                 value={newUser.ward}
                 onChange={e => setNewUser({ ...newUser, ward: e.target.value })}
                 className="w-full rounded border p-2"
@@ -391,6 +443,7 @@ const UserList: React.FC = () => {
                 Vai trò <span className="text-red-500">*</span>
               </label>
               <select
+              id="select-role"
                 value={newUser.role_id}
                 onChange={e => {
                   console.log('Role UUID được chọn:', e.target.value);
@@ -409,12 +462,14 @@ const UserList: React.FC = () => {
             </div>
             <div className="flex gap-2">
               <button
+              id="button-submit"
                 type="submit"
                 className="rounded bg-green-500 px-4 py-2 text-white hover:bg-green-600"
               >
                 Lưu
               </button>
               <button
+              id="button-cancel"
                 onClick={() => setShowForm(false)}
                 className="rounded bg-gray-500 px-4 py-2 text-white hover:bg-gray-600"
               >
