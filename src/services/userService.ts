@@ -45,7 +45,7 @@ export const createUser = async (userData) => {
     }
 
     return result;
-  } catch (error: any) {
+  } catch (error) {
     console.error('Lỗi API createUser:', error.message);
     throw new Error(error.message);
   }
