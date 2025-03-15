@@ -226,7 +226,7 @@ const UserList: React.FC = () => {
       {
         label: 'Chỉnh sửa thông tin',
         onClick: user => handleEditUser(user),
-        className: 'bg-red-400 hover:bg-red-800'
+        className: 'bg-green-500 hover:bg-green-400'
       }
     ]
   };
@@ -260,7 +260,7 @@ const UserList: React.FC = () => {
     // Cập nhật danh sách huyện & xã
     setDistricts(selectedProvince ? selectedProvince.districts : []);
     setWards(selectedWards);
-    
+
     setTimeout(() => {
       setNewUser({
         id: user.id,
